@@ -113,6 +113,7 @@ protected:
   } VideoStreamInfo;
 
   rclcpp::Node & node_;
+  std::string frame_id_namespace_;
   rs2::context ctx_;
   rs2::device dev_;
   rs2::pipeline pipeline_;

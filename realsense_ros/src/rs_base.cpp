@@ -43,6 +43,21 @@ RealSenseBase::RealSenseBase(rs2::context ctx, rs2::device dev, rclcpp::Node & n
     std::bind(
       &RealSenseBase::paramChangeCallback, this,
       std::placeholders::_1));
+
+  // Setup prefix for all frame_id, except for base
+  frame_id_namespace_ = node_.get_namespace();
+  if (!frame_id_namespace_.empty())
+  {
+    if (frame_id_namespace_[0] == '/')
+    {
+      frame_id_namespace_.erase(0, 1);
+    }
+    std::replace(frame_id_namespace_.begin(), frame_id_namespace_.end(), '/', '_');
+    if (frame_id_namespace_[frame_id_namespace_.length() - 1] != '_')
+    {
+      frame_id_namespace_.append("_");
+    }
+  }
 }
 
 RealSenseBase::~RealSenseBase()
@@ -212,7 +227,7 @@ void RealSenseBase::publishImageTopic(const rs2::frame & frame, const rclcpp::Ti
     img = toMsg(std_msgs::msg::Header(), MSG_ENCODING.at(type), cv_image);
     // RCLCPP_INFO(node_.get_logger(), "non-intra: timestamp: %f, address: %p",
     //   time.seconds(), reinterpret_cast<std::uintptr_t>(img.get()));
-    img->header.frame_id = OPTICAL_FRAME_ID.at(type_index);
+    img->header.frame_id = frame_id_namespace_ + OPTICAL_FRAME_ID.at(type_index);
     img->header.stamp = time;
     image_pub_[type_index]->publish(*img);
   } else {
@@ -220,7 +235,7 @@ void RealSenseBase::publishImageTopic(const rs2::frame & frame, const rclcpp::Ti
     toMsg(std_msgs::msg::Header(), MSG_ENCODING.at(type), cv_image, *img);
     // RCLCPP_INFO(node_.get_logger(), "intra: timestamp: %f, address: %p",
     //   time.seconds(), reinterpret_cast<std::uintptr_t>(img.get()));
-    img->header.frame_id = OPTICAL_FRAME_ID.at(type_index);
+    img->header.frame_id = frame_id_namespace_ + OPTICAL_FRAME_ID.at(type_index);
     img->header.stamp = time;
     image_pub_[type_index]->publish(std::move(img));
   }
@@ -234,7 +249,7 @@ void RealSenseBase::updateVideoStreamCalibData(const rs2::video_stream_profile &
   auto intrinsic = video_profile.get_intrinsics();
   camera_info_[type_index].width = intrinsic.width;
   camera_info_[type_index].height = intrinsic.height;
-  camera_info_[type_index].header.frame_id = OPTICAL_FRAME_ID.at(type_index);
+  camera_info_[type_index].header.frame_id = frame_id_namespace_ + OPTICAL_FRAME_ID.at(type_index);
 
   camera_info_[type_index].k.at(0) = intrinsic.fx;
   camera_info_[type_index].k.at(2) = intrinsic.ppx;
@@ -317,11 +332,11 @@ void RealSenseBase::calculateTFAndPublish(
   if (type == RS2_STREAM_POSE) {
     Q = Q.inverse();
     composeTFMsgAndPublish(
-      transform_ts, translation, Q, OPTICAL_FRAME_ID.at(
+      transform_ts, translation, Q, frame_id_namespace_ + OPTICAL_FRAME_ID.at(
         type_index), base_frame_id_);
   } else {
     composeTFMsgAndPublish(
-      transform_ts, translation, quaternion_optical, base_frame_id_, OPTICAL_FRAME_ID.at(
+      transform_ts, translation, quaternion_optical, base_frame_id_, frame_id_namespace_ + OPTICAL_FRAME_ID.at(
         type_index));
   }
 }

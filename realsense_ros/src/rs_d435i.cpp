@@ -74,7 +74,7 @@ void RealSenseD435I::publishIMUTopic(const rs2::frame & frame, const rclcpp::Tim
   sensor_msgs::msg::Imu imu_msg;
   realsense_msgs::msg::IMUInfo info_msg;
 
-  imu_msg.header.frame_id = OPTICAL_FRAME_ID.at(type_index);
+  imu_msg.header.frame_id = frame_id_namespace_ + OPTICAL_FRAME_ID.at(type_index);
   imu_msg.orientation.x = 0.0;
   imu_msg.orientation.y = 0.0;
   imu_msg.orientation.z = 0.0;
@@ -123,7 +123,7 @@ IMUInfo RealSenseD435I::getIMUInfo(const rs2::frame & frame, const stream_index_
   }
 
   auto index = 0;
-  info.header.frame_id = OPTICAL_FRAME_ID.at(stream_index);
+  info.header.frame_id = frame_id_namespace_ + OPTICAL_FRAME_ID.at(stream_index);
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 4; ++j) {
       info.data[index] = imu_intrinsics.data[i][j];

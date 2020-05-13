@@ -199,7 +199,7 @@ void RealSenseD435::publishAlignedDepthTopic(const rs2::frame & frame, const rcl
     img = toMsg(std_msgs::msg::Header(), MSG_ENCODING.at(type), cv_image);
     // RCLCPP_INFO(node_->get_logger(), "timestamp: %f, address: %p",
     //   t.seconds(), reinterpret_cast<std::uintptr_t>(img.get()));
-    img->header.frame_id = DEFAULT_ALIGNED_DEPTH_TO_COLOR_FRAME_ID;
+    img->header.frame_id = frame_id_namespace_ + std::string(DEFAULT_ALIGNED_DEPTH_TO_COLOR_FRAME_ID);
     img->header.stamp = time;
     aligned_depth_image_pub_->publish(*img);
   } else {
@@ -208,7 +208,7 @@ void RealSenseD435::publishAlignedDepthTopic(const rs2::frame & frame, const rcl
     toMsg(std_msgs::msg::Header(), sensor_msgs::image_encodings::RGB8, cv_image, *img);
     // RCLCPP_INFO(node_->get_logger(), "timestamp: %f, address: %p",
     //   t.seconds(), reinterpret_cast<std::uintptr_t>(img.get()));
-    img->header.frame_id = DEFAULT_ALIGNED_DEPTH_TO_COLOR_FRAME_ID;
+    img->header.frame_id = frame_id_namespace_ + std::string(DEFAULT_ALIGNED_DEPTH_TO_COLOR_FRAME_ID);
     img->header.stamp = time;
     aligned_depth_image_pub_->publish(std::move(img));
   }
@@ -240,7 +240,7 @@ void RealSenseD435::publishSparsePointCloud(
     // RCLCPP_INFO(node_->get_logger(), "timestamp: %f, address: %p",
     //   t.seconds(), reinterpret_cast<std::uintptr_t>(pc_msg.get()));
     pc_msg->header.stamp = time;
-    pc_msg->header.frame_id = DEFAULT_COLOR_OPTICAL_FRAME_ID;
+    pc_msg->header.frame_id = frame_id_namespace_ + std::string(DEFAULT_COLOR_OPTICAL_FRAME_ID);
     pc_msg->width = valid_indices.size();
     pc_msg->height = 1;
     pc_msg->point_step = 3 * sizeof(float) + 3 * sizeof(uint8_t);
@@ -291,7 +291,7 @@ void RealSenseD435::publishSparsePointCloud(
     // RCLCPP_INFO(node_->get_logger(), "timestamp: %f, address: %p",
     //   t.seconds(), reinterpret_cast<std::uintptr_t>(pc_msg.get()));
     pc_msg->header.stamp = time;
-    pc_msg->header.frame_id = DEFAULT_COLOR_OPTICAL_FRAME_ID;
+    pc_msg->header.frame_id = frame_id_namespace_ + std::string(DEFAULT_COLOR_OPTICAL_FRAME_ID);
     pc_msg->width = valid_indices.size();
     pc_msg->height = 1;
     pc_msg->point_step = 3 * sizeof(float) + 3 * sizeof(uint8_t);
@@ -351,7 +351,7 @@ void RealSenseD435::publishDensePointCloud(
     // RCLCPP_INFO(node_->get_logger(), "timestamp: %f, address: %p",
     //   t.seconds(), reinterpret_cast<std::uintptr_t>(pc_msg.get()));
     pc_msg->header.stamp = time;
-    pc_msg->header.frame_id = DEFAULT_COLOR_OPTICAL_FRAME_ID;
+    pc_msg->header.frame_id = frame_id_namespace_ + std::string(DEFAULT_COLOR_OPTICAL_FRAME_ID);
     pc_msg->width = color_frame.get_width();
     pc_msg->height = color_frame.get_height();
     pc_msg->point_step = 3 * sizeof(float) + 3 * sizeof(uint8_t);
@@ -393,7 +393,7 @@ void RealSenseD435::publishDensePointCloud(
     // RCLCPP_INFO(node_->get_logger(), "timestamp: %f, address: %p",
     //   t.seconds(), reinterpret_cast<std::uintptr_t>(pc_msg.get()));
     pc_msg->header.stamp = time;
-    pc_msg->header.frame_id = DEFAULT_COLOR_OPTICAL_FRAME_ID;
+    pc_msg->header.frame_id = frame_id_namespace_ + std::string(DEFAULT_COLOR_OPTICAL_FRAME_ID);
     pc_msg->width = color_frame.get_width();
     pc_msg->height = color_frame.get_height();
     pc_msg->point_step = 3 * sizeof(float) + 3 * sizeof(uint8_t);
